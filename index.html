@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adham — Training Programme</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --border: #e2e8f0;
+    --primary: #1e4d7b;
+    --primary-light: #ebf2fa;
+    --primary-mid: #c8ddf0;
+    --accent: #e67e22;
+    --success: #1a7340;
+    --success-light: #d4edda;
+    --warning: #856404;
+    --warning-light: #fef3cd;
+    --danger: #c0392b;
+    --danger-light: #f8d7da;
+    --text: #1a202c;
+    --text-muted: #718096;
+    --text-light: #a0aec0;
+    --deload-bg: #fffbeb;
+    --deload-border: #f6c343;
+    --phase1: #1e4d7b;
+    --phase2: #1a5c35;
+    --phase3: #7b3a1e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
+
+  /* ---- HEADER ---- */
+  .header { background: var(--primary); color: white; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
+  .header-left h1 { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
+  .header-left p { font-size: 11px; opacity: 0.7; margin-top: 2px; }
+  .header-right { text-align: right; font-size: 11px; opacity: 0.7; }
+  .header-right strong { font-size: 14px; opacity: 1; }
+
+  /* ---- STATUS BAR ---- */
+  .status-bar { background: var(--primary-light); border-bottom: 2px solid var(--primary-mid); padding: 8px 20px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+  .stat { font-size: 12px; }
+  .stat strong { color: var(--primary); font-weight: 700; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .badge-phase1 { background: var(--primary); color: white; }
+  .badge-phase2 { background: var(--phase2); color: white; }
+  .badge-phase3 { background: var(--phase3); color: white; }
+  .badge-deload { background: var(--warning-light); color: var(--warning); border: 1px solid var(--deload-border); }
+
+  /* ---- NAV ---- */
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); display: flex; padding: 0 20px; gap: 4px; }
+  nav button { padding: 10px 14px; border: none; background: none; cursor: pointer; font-size: 13px; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; font-weight: 500; transition: all 0.12s; }
+  nav button.active { color: var(--primary); border-bottom-color: var(--primary); }
+  nav button:hover:not(.active) { color: var(--text); }
+
+  /* ---- SCHEDULE / PROTOCOLS ---- */
+  .day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 20px; }
+  .day-card { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .day-card-hdr { padding: 6px 8px; font-size: 11px; font-weight: 700; text-align: center; }
+  .day-card-body { padding: 8px; font-size: 11px; line-height: 1.5; }
+  .day-pill { display: inline-block; padding: 1px 6px; border-radius: 8px; font-size: 10px; font-weight: 600; margin: 1px 0; white-space: nowrap; }
+  .pill-lift { background: #dbeafe; color: #1e3a8a; }
+  .pill-cardio { background: #dcfce7; color: #14532d; }
+  .pill-sauna { background: #fef3c7; color: #78350f; }
+  .pill-swim { background: #e0e7ff; color: #3730a3; }
+  .pill-rest { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
+
+  .protocol-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .proto-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .proto-card-hdr { padding: 10px 14px; font-size: 12px; font-weight: 700; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 6px; }
+  .proto-card-body { padding: 12px 14px; font-size: 12px; line-height: 1.65; color: var(--text); }
+  .proto-card-body strong { font-weight: 700; color: var(--primary); }
+  .proto-card-body p { margin-bottom: 7px; }
+  .proto-card-body p:last-child { margin-bottom: 0; }
+  .proto-step { display: flex; gap: 8px; margin-bottom: 6px; }
+  .proto-step-num { flex-shrink: 0; width: 18px; height: 18px; border-radius: 50%; background: var(--primary); color: white; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+  .zone2-bar { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; margin-top: 8px; font-size: 11px; }
+  .zone2-bar .range { font-size: 16px; font-weight: 700; color: var(--success); }
+  .caution-box { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 6px; padding: 8px 10px; font-size: 11px; color: #7c2d12; margin-top: 6px; }
+  .caution-box strong { color: #9a3412; }
+
+  @media (max-width: 680px) {
+    .day-grid { grid-template-columns: repeat(3,1fr); }
+    .protocol-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ---- CONTENT ---- */
+  .content { padding: 20px; max-width: 960px; margin: 0 auto; }
+
+  /* ---- CARDS ---- */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 16px; }
+  .card-header { padding: 12px 16px; background: var(--bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .card-header h2 { font-size: 13px; font-weight: 700; }
+  .card-body { padding: 16px; }
+
+  /* ---- BUTTONS ---- */
+  .btn { display: inline-flex; align-items: center; gap: 5px; padding: 7px 14px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.12s; }
+  .btn:hover { opacity: 0.88; }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-success { background: var(--success); color: white; }
+  .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--bg); }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-sm { padding: 4px 10px; font-size: 12px; }
+  .btn-xs { padding: 2px 7px; font-size: 11px; border-radius: 4px; }
+
+  /* ---- OVERVIEW / WEEK GRID ---- */
+  .phase-section { margin-bottom: 24px; }
+  .phase-label { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .phase-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .phase-label h3 { font-size: 14px; font-weight: 700; }
+  .phase-label p { font-size: 12px; color: var(--text-muted); }
+
+  .week-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .week-card { border: 1px solid var(--border); border-radius: 8px; padding: 11px 12px; cursor: default; transition: box-shadow 0.12s; }
+  .week-card.deload { background: var(--deload-bg); border-color: var(--deload-border); }
+  .week-card.current { border-color: var(--primary); border-width: 2px; box-shadow: 0 0 0 3px rgba(30,77,123,0.12); }
+  .week-card.past { opacity: 0.55; }
+  .week-card h4 { font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 5px; }
+  .week-card .wk-targets { font-size: 11px; color: var(--text); line-height: 1.6; }
+  .wk-deload-tag { font-size: 10px; font-weight: 700; color: var(--warning); background: var(--warning-light); padding: 1px 6px; border-radius: 10px; display: inline-block; margin-top: 2px; }
+  .current-tag { font-size: 10px; font-weight: 700; color: white; background: var(--primary); padding: 1px 6px; border-radius: 10px; display: inline-block; }
+
+  /* ---- EXERCISE TABLE ---- */
+  .ex-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .ex-table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .ex-table-card h3 { padding: 10px 14px; font-size: 12px; font-weight: 700; background: var(--primary-light); color: var(--primary); border-bottom: 1px solid var(--border); }
+  .ex-list { }
+  .ex-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 9px 14px; border-bottom: 1px solid var(--border); align-items: start; }
+  .ex-row:last-child { border-bottom: none; }
+  .ex-name { font-size: 12px; font-weight: 600; }
+  .ex-note { font-size: 11px; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+  .stab-tag { font-size: 10px; background: var(--primary-light); color: var(--primary); padding: 1px 5px; border-radius: 4px; font-weight: 600; white-space: nowrap; }
+  .achilles-tag { font-size: 10px; background: #fff0e0; color: #b45309; padding: 1px 5px; border-radius: 4px; font-weight: 600; white-space: nowrap; }
+
+  /* ---- PO RULE BOX ---- */
+  .po-rule-box { background: var(--success-light); border: 1px solid #b6e2c3; border-radius: 8px; padding: 12px 14px; font-size: 12px; color: #155724; margin-bottom: 16px; }
+  .po-rule-box strong { font-weight: 700; }
+
+  /* ---- LOG SESSION ---- */
+  .workout-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+  .workout-opt { border: 2px solid var(--border); border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: all 0.12s; background: var(--surface); text-align: left; }
+  .workout-opt.sel { border-color: var(--primary); background: var(--primary-light); }
+  .workout-opt h3 { font-size: 14px; font-weight: 700; }
+  .workout-opt p { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+  .workout-opt.sel p { color: var(--primary); }
+
+  .log-target-banner { background: var(--primary-light); border: 1px solid var(--primary-mid); border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 16px; }
+  .log-target-banner strong { color: var(--primary); }
+
+  .ex-log-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+  .ex-log-header { padding: 11px 14px; display: flex; justify-content: space-between; align-items: center; background: var(--bg); border-bottom: 1px solid var(--border); }
+  .ex-log-header-left h3 { font-size: 13px; font-weight: 700; }
+  .ex-log-header-left p { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  .sets-log-table { width: 100%; border-collapse: collapse; }
+  .sets-log-table th { padding: 7px 12px; font-size: 11px; color: var(--text-muted); text-align: left; font-weight: 600; background: var(--bg); border-bottom: 1px solid var(--border); }
+  .sets-log-table td { padding: 6px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .sets-log-table tr:last-child td { border-bottom: none; }
+  .sets-log-table input { padding: 5px 7px; border: 1px solid var(--border); border-radius: 5px; font-size: 13px; text-align: center; width: 72px; transition: border 0.1s; }
+  .sets-log-table input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(30,77,123,0.1); }
+  .set-num { font-size: 12px; font-weight: 700; color: var(--text-muted); width: 28px; display: inline-block; text-align: center; }
+
+  .rir-pip { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; font-size: 11px; font-weight: 700; }
+  .rir-0 { background: #f8d7da; color: #721c24; }
+  .rir-1 { background: #fde8d0; color: #7b3210; }
+  .rir-2 { background: #fff3cd; color: #856404; }
+  .rir-3 { background: #d8f4e4; color: #1a5c35; }
+  .rir-4 { background: #d4edda; color: #155724; }
+  .rir-5plus { background: #cce5ff; color: #004085; }
+  .rir-none { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
+
+  .add-set-row { padding: 8px 12px; border-top: 1px solid var(--border); background: var(--bg); }
+
+  .po-alert-inline { margin: 0 14px 10px; background: var(--success-light); border: 1px solid #b6e2c3; border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #155724; }
+  .po-alert-inline strong { font-weight: 700; }
+
+  .log-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+  /* ---- HISTORY ---- */
+  .history-empty { text-align: center; padding: 60px 24px; color: var(--text-muted); }
+  .history-empty h3 { font-size: 15px; margin-bottom: 6px; }
+
+  .hist-session { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+  .hist-session-hdr { padding: 11px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+  .hist-session-hdr:hover { background: var(--bg); }
+  .hist-session-hdr h3 { font-size: 13px; font-weight: 700; }
+  .hist-session-hdr .meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .hist-chevron { color: var(--text-muted); font-size: 12px; transition: transform 0.15s; }
+  .hist-chevron.open { transform: rotate(180deg); }
+  .hist-body { display: none; padding: 0 14px 12px; border-top: 1px solid var(--border); }
+  .hist-body.open { display: block; }
+  .hist-ex { margin-top: 10px; }
+  .hist-ex h4 { font-size: 12px; font-weight: 700; margin-bottom: 5px; }
+  .hist-sets-row { display: flex; flex-wrap: wrap; gap: 5px; }
+  .hist-set-chip { font-size: 11px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 3px 9px; }
+  .hist-set-chip.good-rir { border-color: #b6e2c3; background: var(--success-light); color: #155724; }
+
+  /* ---- WEEK SETTER ---- */
+  .week-setter { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; }
+  .week-setter span { font-size: 15px; font-weight: 700; min-width: 70px; text-align: center; }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 600px) {
+    .week-grid { grid-template-columns: repeat(2,1fr); }
+    .ex-grid { grid-template-columns: 1fr; }
+    .status-bar { gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>Training Programme — Adham</h1>
+    <p>Medicine 3.0 · Lean mass · Insertional Achilles protocol</p>
+  </div>
+  <div class="header-right">
+    <div id="hdr-date"></div>
+  </div>
+</div>
+
+<div class="status-bar" id="statusBar"></div>
+
+<nav>
+  <button class="active" onclick="showTab('overview')">Programme</button>
+  <button onclick="showTab('log')">Log Session</button>
+  <button onclick="showTab('history')">History</button>
+  <button onclick="showTab('schedule')">Schedule & Protocols</button>
+</nav>
+
+<div class="content">
+  <div id="tab-overview"></div>
+  <div id="tab-log" style="display:none"></div>
+  <div id="tab-history" style="display:none"></div>
+  <div id="tab-schedule" style="display:none"></div>
+</div>
+
+<script>
+// =====================================================
+// PROGRAMME DATA
+// =====================================================
+
+const WEEKS = [
+  { w:1,  sets:2, reps:"12", rir:4, deload:false, phase:1 },
+  { w:2,  sets:2, reps:"12", rir:3, deload:false, phase:1 },
+  { w:3,  sets:3, reps:"10", rir:3, deload:false, phase:1 },
+  { w:4,  sets:2, reps:"12", rir:5, deload:true,  phase:1, deloadNote:"Reduce all weights ~30%. Let connective tissue recover." },
+  { w:5,  sets:3, reps:"10", rir:3, deload:false, phase:2 },
+  { w:6,  sets:3, reps:"10", rir:2, deload:false, phase:2 },
+  { w:7,  sets:3, reps:"8",  rir:2, deload:false, phase:2 },
+  { w:8,  sets:2, reps:"10", rir:4, deload:true,  phase:2, deloadNote:"Reduce all weights ~30%. Prepare for Phase 3." },
+  { w:9,  sets:3, reps:"8",  rir:2, deload:false, phase:3 },
+  { w:10, sets:4, reps:"6–8",rir:2, deload:false, phase:3 },
+  { w:11, sets:4, reps:"6",  rir:1, deload:false, phase:3 },
+  { w:12, sets:2, reps:"10", rir:4, deload:true,  phase:3, deloadNote:"Full deload. Reassess and plan next block." },
+];
+
+const PHASES = {
+  1: { name:"Phase 1 — Foundation", goal:"Movement quality, connective tissue adaptation. Never close to failure.", colour:"#1e4d7b" },
+  2: { name:"Phase 2 — Accumulation", goal:"Build volume and progressive load. Start pushing the weights.", colour:"#1a5c35" },
+  3: { name:"Phase 3 — Intensification", goal:"Strength development and hypertrophy. Train with intent.", colour:"#7b3a1e" },
+};
+
+const WORKOUTS = {
+  A: {
+    label: "Workout A",
+    subtitle: "Squat · Bench · Pulldown · Raise",
+    exercises: [
+      { id:"goblet_squat",  name:"Squat (Goblet)",              muscles:"Quads, Glutes",              note:"Heels flat, chest up. Progress to barbell squat from Phase 2.",      alt:"Rack busy? Use leg press or Smith machine.", tag:null },
+      { id:"db_bench",      name:"Bench Press",                 muscles:"Chest, Triceps, Front delt",  note:"Full ROM. 3-second lowering. Controlled.",                          alt:"Bench busy? Use chest press machine or DB bench on an open rack.", tag:null },
+      { id:"lat_pulldown",  name:"Lat Pulldown",                muscles:"Lats, Biceps",               note:"Pull to upper chest, slight lean back. Control the return.",        alt:"Busy? Use assisted pull-up machine or single-arm cable pulldown.", tag:null },
+      { id:"lat_raise",     name:"Lateral DB Raise",            muscles:"Side delt",                  note:"Slight elbow bend, raise to shoulder height, controlled.",          alt:"Busy? Use cable or machine lateral raise.", tag:null },
+      { id:"dead_bug",      name:"Dead Bug",                    muscles:"Core / Stability",             note:"8 reps each side. Lower back pressed to floor throughout.",          alt:"No equipment needed — always available.", tag:"stability" },
+      { id:"calf_iso",      name:"Isometric Calf Hold (flat)",  muscles:"Achilles Protocol",            note:"45s × 5 reps. FLAT floor only — NO heel drop. Both legs, then single.", alt:"No equipment needed — always available.", tag:"achilles" },
+    ]
+  },
+  B: {
+    label: "Workout B",
+    subtitle: "RDL · Row · OHP · Pressdown",
+    exercises: [
+      { id:"rdl",              name:"Romanian Deadlift",     muscles:"Hamstrings, Glutes, Lower back", note:"Hinge at hip, soft knee. Feel the stretch. Don't round lower back.", alt:"Platform busy? Use DB RDL anywhere, or hip thrust machine as a hinge alternative.", tag:null },
+      { id:"cable_row",        name:"Seated Cable Row",      muscles:"Lats, Rhomboids, Biceps",      note:"Chest tall, pull elbows back. Pause at contraction 1 second.",       alt:"Busy? Use chest-supported row machine or single-arm DB row.", tag:null },
+      { id:"db_ohp",           name:"Overhead Press",        muscles:"Delts, Triceps",               note:"Seated for stability. Don't flare elbows excessively.",              alt:"Busy? Use shoulder press machine.", tag:null },
+      { id:"tricep_pressdown", name:"Triceps Pressdown",     muscles:"Triceps",                      note:"Elbows pinned at sides, full extension, controlled return.",         alt:"Busy? Use DB overhead triceps extension.", tag:null },
+      { id:"pallof_press",     name:"Pallof Press",          muscles:"Core / Anti-rotation",          note:"10 reps each side. Hold 1s at full extension.",                       alt:"No cable free? Use a resistance band anchored anywhere.", tag:"stability" },
+      { id:"slb",              name:"Single-Leg Balance",    muscles:"Proprioception / Stability",    note:"30s each leg. Progress: eyes open → eyes closed → unstable surface.", alt:"No equipment needed — always available.", tag:"stability" },
+    ]
+  }
+};
+
+const RIR_LABELS = { 0:"Max effort", 1:"Very hard", 2:"Hard", 3:"Moderate", 4:"Easy", 5:"Very easy", 6:"Warm-up", 7:"Very light", 8:"Minimal" };
+function rirLabel(r) { return RIR_LABELS[Math.min(8, Math.max(0, r))] || ""; }
+function rirPipClass(r) {
+  if (r === null || r === undefined || r === '') return 'rir-none';
+  const n = parseInt(r);
+  if (isNaN(n)) return 'rir-none';
+  if (n <= 1) return 'rir-1';
+  if (n === 2) return 'rir-2';
+  if (n === 3) return 'rir-3';
+  if (n === 4) return 'rir-4';
+  return 'rir-5plus';
+}
+
+// =====================================================
+// STATE
+// =====================================================
+
+let S = {
+  currentWeek: 1,
+  sessions: [],
+};
+
+function loadState() {
+  try {
+    const d = localStorage.getItem('adham_training_v2');
+    if (d) S = Object.assign(S, JSON.parse(d));
+  } catch(e) {}
+}
+function saveState() {
+  try { localStorage.setItem('adham_training_v2', JSON.stringify(S)); } catch(e) {}
+}
+loadState();
+
+// =====================================================
+// HELPERS
+// =====================================================
+
+function wkConf(w) { return WEEKS.find(x => x.w === w) || WEEKS[0]; }
+function phaseConf(p) { return PHASES[p]; }
+function phaseFor(w) { return (wkConf(w)||{}).phase || 1; }
+
+function getLastWeight(exId) {
+  for (let i = S.sessions.length - 1; i >= 0; i--) {
+    const ex = S.sessions[i].exercises.find(e => e.id === exId);
+    if (ex && ex.sets.length > 0) {
+      const w = ex.sets.find(s => s.weight && s.weight !== '')?.weight;
+      if (w) return w;
+    }
+  }
+  return '';
+}
+
+// Progressive overload check: last 2 sessions both had all sets at RIR >= targetRIR + 2
+function checkPO(exId) {
+  const relevant = S.sessions.filter(s => s.exercises.some(e => e.id === exId)).slice(-2);
+  if (relevant.length < 2) return null;
+  const wc = wkConf(S.currentWeek);
+  const threshold = wc.rir + 2;
+  const allGood = relevant.every(sess => {
+    const ex = sess.exercises.find(e => e.id === exId);
+    if (!ex || ex.sets.length === 0) return false;
+    return ex.sets.every(s => {
+      const r = parseInt(s.rir);
+      return !isNaN(r) && r >= threshold;
+    });
+  });
+  if (!allGood) return null;
+  const lastEx = relevant[1].exercises.find(e => e.id === exId);
+  const lastW = lastEx?.sets[0]?.weight || '';
+  return { lastWeight: lastW };
+}
+
+function isLowerBodyEx(id) {
+  return ['goblet_squat','rdl'].includes(id);
+}
+
+// =====================================================
+// DATE / HEADER
+// =====================================================
+
+function renderHeader() {
+  const now = new Date();
+  document.getElementById('hdr-date').innerHTML = now.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+}
+
+function renderStatusBar() {
+  const wc = wkConf(S.currentWeek);
+  const ph = phaseConf(wc.phase);
+  const phaseBadgeClass = `badge-phase${wc.phase}`;
+  const totalSessions = S.sessions.length;
+  const lastDate = S.sessions.length > 0
+    ? new Date(S.sessions[S.sessions.length-1].date).toLocaleDateString('en-GB',{day:'numeric',month:'short'})
+    : 'None yet';
+
+  document.getElementById('statusBar').innerHTML = `
+    <span class="badge ${phaseBadgeClass}">${ph.name.split('—')[0].trim()}</span>
+    <span class="stat">Week <strong>${wc.w} / 12</strong></span>
+    <span class="stat">Target <strong>${wc.sets} sets × ${wc.reps} @ RIR ${wc.rir}</strong></span>
+    <span class="stat">Sessions <strong>${totalSessions}</strong></span>
+    <span class="stat">Last <strong>${lastDate}</strong></span>
+    ${wc.deload ? '<span class="badge badge-deload">🔄 DELOAD WEEK</span>' : ''}
+  `;
+}
+
+// =====================================================
+// TAB: OVERVIEW
+// =====================================================
+
+function renderOverview() {
+  const el = document.getElementById('tab-overview');
+  let h = '';
+
+  // Exercise selection
+  h += `<div class="ex-grid" style="margin-bottom:16px;">`;
+  ['A','B'].forEach(wt => {
+    const wo = WORKOUTS[wt];
+    h += `<div class="ex-table-card"><h3>${wo.label} — ${wo.subtitle}</h3><div class="ex-list">`;
+    wo.exercises.forEach(ex => {
+      const tagHtml = ex.tag === 'stability'
+        ? '<span class="stab-tag">STABILITY</span>'
+        : ex.tag === 'achilles'
+          ? '<span class="achilles-tag">ACHILLES</span>'
+          : '';
+      h += `<div class="ex-row">
+        <div>
+          <div class="ex-name">${ex.name}</div>
+          <div class="ex-note">${ex.muscles} — ${ex.note}</div>
+          ${ex.alt ? `<div class="ex-note" style="color:var(--primary);margin-top:2px;">↔ ${ex.alt}</div>` : ''}
+        </div>
+        ${tagHtml}
+      </div>`;
+    });
+    h += `</div></div>`;
+  });
+  h += `</div>`;
+
+  // PO rule
+  h += `<div class="po-rule-box" style="margin-bottom:20px;">
+    <strong>Progressive Overload Rule:</strong> When every set of an exercise hits target RIR + 2 or better, for 2 consecutive sessions → add weight.
+    Upper body +2.5 kg · Lower body +5 kg. The session log will alert you automatically.
+  </div>`;
+
+  // Phases and weeks
+  [1,2,3].forEach(p => {
+    const ph = phaseConf(p);
+    const phWks = WEEKS.filter(w => w.phase === p);
+    h += `<div class="phase-section">
+      <div class="phase-label">
+        <div class="phase-dot" style="background:${ph.colour}"></div>
+        <div>
+          <h3>${ph.name}</h3>
+          <p>${ph.goal}</p>
+        </div>
+      </div>
+      <div class="week-grid">`;
+    phWks.forEach(wk => {
+      const isCurrent = wk.w === S.currentWeek;
+      const isPast = wk.w < S.currentWeek;
+      h += `<div class="week-card ${wk.deload?'deload':''} ${isCurrent?'current':''} ${isPast&&!isCurrent?'past':''}">
+        <h4>Week ${wk.w} ${isCurrent?'<span class="current-tag">NOW</span>':''}</h4>
+        <div class="wk-targets">`;
+      if (wk.deload) {
+        h += `<span class="wk-deload-tag">🔄 DELOAD</span><br>${wk.deloadNote}`;
+      } else {
+        h += `${wk.sets} sets × ${wk.reps} reps<br>RIR ${wk.rir} — ${rirLabel(wk.rir)}`;
+      }
+      h += `</div></div>`;
+    });
+    h += `</div></div>`;
+  });
+
+  // Week setter
+  h += `<div class="card" style="margin-top:8px;">
+    <div class="card-header"><h2>Current Week</h2></div>
+    <div class="card-body">
+      <div class="week-setter">
+        <button class="btn btn-secondary btn-sm" onclick="adjustWeek(-1)">← Back</button>
+        <span>Week ${S.currentWeek} / 12</span>
+        <button class="btn btn-secondary btn-sm" onclick="adjustWeek(1)">Forward →</button>
+      </div>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:10px;">Advance the week manually to keep the session log aligned with where you are in the programme.</p>
+    </div>
+  </div>`;
+
+  el.innerHTML = h;
+}
+
+function adjustWeek(d) {
+  S.currentWeek = Math.max(1, Math.min(12, S.currentWeek + d));
+  saveState();
+  renderAll();
+}
+
+// =====================================================
+// TAB: LOG SESSION
+// =====================================================
+
+let logWorkout = 'A';
+let logData = {}; // exId → { sets: [{weight, reps, rir}] }
+
+function initLogData(workout) {
+  const wc = wkConf(S.currentWeek);
+  const exList = WORKOUTS[workout].exercises;
+  logData = {};
+  exList.forEach(ex => {
+    logData[ex.id] = {
+      sets: Array.from({length: wc.sets}, () => ({ weight: getLastWeight(ex.id), reps: '', rir: '' }))
+    };
+  });
+}
+
+function renderLog() {
+  const el = document.getElementById('tab-log');
+  const wc = wkConf(S.currentWeek);
+  const ph = phaseConf(wc.phase);
+
+  let h = `<div class="log-target-banner">
+    <strong>${ph.name.split('—')[0].trim()} · Week ${wc.w}</strong>
+    ${wc.deload ? ' <span class="badge badge-deload">🔄 DELOAD — reduce weights ~30%</span>' : ''}
+    <br><span style="font-size:12px">Target: <strong>${wc.sets} sets × ${wc.reps} reps @ RIR ${wc.rir} (${rirLabel(wc.rir)})</strong></span>
+  </div>`;
+
+  h += `<div class="workout-selector">`;
+  ['A','B'].forEach(wt => {
+    const wo = WORKOUTS[wt];
+    h += `<button class="workout-opt ${logWorkout===wt?'sel':''}" onclick="switchWorkout('${wt}')">
+      <h3>${wo.label}</h3><p>${wo.subtitle}</p>
+    </button>`;
+  });
+  h += `</div>`;
+
+  const exList = WORKOUTS[logWorkout].exercises;
+
+  exList.forEach(ex => {
+    if (!logData[ex.id]) {
+      logData[ex.id] = { sets: Array.from({length: wc.sets}, () => ({ weight: getLastWeight(ex.id), reps: '', rir: '' })) };
+    }
+    const sets = logData[ex.id].sets;
+    const po = checkPO(ex.id);
+    const isLower = isLowerBodyEx(ex.id);
+    const addKg = isLower ? 5 : 2.5;
+
+    const tagHtml = ex.tag === 'stability'
+      ? '<span class="stab-tag">STABILITY</span>'
+      : ex.tag === 'achilles'
+        ? '<span class="achilles-tag">ACHILLES</span>'
+        : '';
+
+    h += `<div class="ex-log-card">
+      <div class="ex-log-header">
+        <div class="ex-log-header-left">
+          <h3>${ex.name} ${tagHtml}</h3>
+          <p>${ex.muscles} — ${ex.note}</p>
+          ${ex.alt ? `<p style="color:var(--primary)">↔ ${ex.alt}</p>` : ''}
+        </div>
+      </div>`;
+
+    if (po) {
+      const newW = po.lastWeight ? (parseFloat(po.lastWeight) + addKg).toFixed(1) : '—';
+      h += `<div class="po-alert-inline">⬆ <strong>Add weight today.</strong> Last 2 sessions: consistently RIR ≥ ${wc.rir + 2}.
+        ${po.lastWeight ? `Last used: ${po.lastWeight} kg → try <strong>${newW} kg</strong>` : 'Increase by +' + addKg + ' kg.'}
+      </div>`;
+    }
+
+    h += `<table class="sets-log-table">
+      <thead><tr>
+        <th>Set</th>
+        <th>Weight (kg)</th>
+        <th>Reps done</th>
+        <th>RIR</th>
+        <th>Feel</th>
+        <th></th>
+      </tr></thead>
+      <tbody id="tbody_${ex.id}">`;
+
+    sets.forEach((s, i) => {
+      h += renderSetRow(ex.id, i, s);
+    });
+
+    h += `</tbody></table>
+      <div class="add-set-row">
+        <button class="btn btn-secondary btn-xs" onclick="addSet('${ex.id}')">+ Set</button>
+      </div>
+    </div>`;
+  });
+
+  h += `<div class="log-actions">
+    <button class="btn btn-success" onclick="saveSession()">✓ Save Session</button>
+    <button class="btn btn-secondary" onclick="clearLog()">Clear Form</button>
+  </div>`;
+
+  el.innerHTML = h;
+}
+
+function renderSetRow(exId, i, s) {
+  const r = s.rir !== '' ? parseInt(s.rir) : null;
+  const pipCls = r !== null && !isNaN(r) ? rirPipClass(r) : 'rir-none';
+  const feel = r !== null && !isNaN(r) ? rirLabel(r) : '—';
+  return `<tr id="sr_${exId}_${i}">
+    <td><span class="set-num">${i+1}</span></td>
+    <td><input type="number" step="0.5" min="0" placeholder="kg" value="${s.weight||''}"
+         oninput="upd('${exId}',${i},'weight',this.value)"></td>
+    <td><input type="number" min="1" max="30" placeholder="reps" value="${s.reps||''}"
+         oninput="upd('${exId}',${i},'reps',this.value)"></td>
+    <td><input type="number" min="0" max="8" placeholder="0–8" value="${s.rir||''}"
+         oninput="upd('${exId}',${i},'rir',this.value)" onchange="refreshRow('${exId}',${i})"></td>
+    <td><span class="rir-pip ${pipCls}">${r !== null && !isNaN(r) ? r : '?'}</span>
+        <span style="font-size:11px;color:var(--text-muted);margin-left:4px">${feel}</span></td>
+    <td><button class="btn btn-danger btn-xs" onclick="removeSet('${exId}',${i})">×</button></td>
+  </tr>`;
+}
+
+function upd(exId, i, field, val) {
+  if (!logData[exId]) return;
+  logData[exId].sets[i][field] = val;
+}
+
+function refreshRow(exId, i) {
+  const s = logData[exId]?.sets[i];
+  if (!s) return;
+  const row = document.getElementById(`sr_${exId}_${i}`);
+  if (row) row.outerHTML = renderSetRow(exId, i, s);
+}
+
+function addSet(exId) {
+  if (!logData[exId]) logData[exId] = { sets: [] };
+  const last = logData[exId].sets[logData[exId].sets.length - 1] || {};
+  logData[exId].sets.push({ weight: last.weight || '', reps: '', rir: '' });
+  renderLog();
+}
+
+function removeSet(exId, i) {
+  if (!logData[exId] || logData[exId].sets.length <= 1) return;
+  logData[exId].sets.splice(i, 1);
+  renderLog();
+}
+
+function switchWorkout(wt) {
+  logWorkout = wt;
+  logData = {};
+  renderLog();
+}
+
+function clearLog() {
+  logData = {};
+  renderLog();
+}
+
+function saveSession() {
+  const exList = WORKOUTS[logWorkout].exercises;
+  const exercises = exList.map(ex => ({
+    id: ex.id,
+    name: ex.name,
+    sets: (logData[ex.id]?.sets || []).filter(s => s.reps !== '' || s.weight !== '')
+  })).filter(e => e.sets.length > 0);
+
+  if (exercises.length === 0) {
+    alert('Log at least one set before saving.');
+    return;
+  }
+
+  S.sessions.push({
+    id: Date.now(),
+    date: new Date().toISOString(),
+    week: S.currentWeek,
+    workoutType: logWorkout,
+    exercises
+  });
+  saveState();
+  logData = {};
+  alert('Session saved.');
+  renderAll();
+  showTab('history');
+}
+
+// =====================================================
+// TAB: HISTORY
+// =====================================================
+
+function renderHistory() {
+  const el = document.getElementById('tab-history');
+
+  if (S.sessions.length === 0) {
+    el.innerHTML = `<div class="history-empty">
+      <h3>No sessions logged yet</h3>
+      <p>Go to "Log Session" to record your first workout.</p>
+    </div>`;
+    return;
+  }
+
+  const wc = wkConf(S.currentWeek);
+  let h = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+    <div style="font-size:14px;font-weight:700;">${S.sessions.length} sessions logged</div>
+    <button class="btn btn-danger btn-sm" onclick="clearAll()">Clear All Data</button>
+  </div>`;
+
+  [...S.sessions].reverse().forEach((sess, idx) => {
+    const date = new Date(sess.date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+    const totalSets = sess.exercises.reduce((a,e) => a + e.sets.length, 0);
+    const phase = phaseConf(phaseFor(sess.week));
+
+    h += `<div class="hist-session">
+      <div class="hist-session-hdr" onclick="toggleHist(${idx})">
+        <div>
+          <h3>Workout ${sess.workoutType} · ${date}</h3>
+          <div class="meta">Week ${sess.week} · ${phase.name.split('—')[0].trim()} · ${sess.exercises.length} exercises · ${totalSets} sets</div>
+        </div>
+        <span class="hist-chevron" id="chev_${idx}">▼</span>
+      </div>
+      <div class="hist-body" id="hbody_${idx}">`;
+
+    sess.exercises.forEach(ex => {
+      h += `<div class="hist-ex">
+        <h4>${ex.name}</h4>
+        <div class="hist-sets-row">`;
+      ex.sets.forEach((s, si) => {
+        const r = parseInt(s.rir);
+        const isGood = !isNaN(r) && r >= wc.rir + 2;
+        h += `<div class="hist-set-chip ${isGood ? 'good-rir' : ''}">
+          ${si+1}: ${s.weight ? s.weight + 'kg' : '—'} × ${s.reps || '—'}${!isNaN(r) ? ' @ RIR '+r : ''}
+        </div>`;
+      });
+      h += `</div></div>`;
+    });
+
+    h += `</div></div>`;
+  });
+
+  el.innerHTML = h;
+}
+
+function toggleHist(idx) {
+  const body = document.getElementById(`hbody_${idx}`);
+  const chev = document.getElementById(`chev_${idx}`);
+  if (body) { body.classList.toggle('open'); }
+  if (chev) { chev.classList.toggle('open'); }
+}
+
+function clearAll() {
+  if (confirm('Delete all logged sessions? This cannot be undone.')) {
+    S.sessions = [];
+    saveState();
+    renderAll();
+  }
+}
+
+// =====================================================
+// TAB: SCHEDULE & PROTOCOLS
+// =====================================================
+
+function renderSchedule() {
+  const el = document.getElementById('tab-schedule');
+
+  const days = [
+    {
+      name: 'Mon', activities: [
+        { label: 'Workout A', cls: 'pill-lift' },
+        { label: 'Zone 2 20min', cls: 'pill-cardio' },
+        { label: 'Sauna', cls: 'pill-sauna' },
+      ]
+    },
+    {
+      name: 'Tue', activities: [
+        { label: 'Zone 2 50min', cls: 'pill-cardio' },
+        { label: 'Sauna', cls: 'pill-sauna' },
+      ]
+    },
+    {
+      name: 'Wed', activities: [
+        { label: 'Workout B', cls: 'pill-lift' },
+        { label: 'Zone 2 20min', cls: 'pill-cardio' },
+        { label: 'Sauna', cls: 'pill-sauna' },
+      ]
+    },
+    {
+      name: 'Thu', activities: [
+        { label: 'Swim 30–40min', cls: 'pill-swim' },
+        { label: 'Sauna', cls: 'pill-sauna' },
+      ]
+    },
+    {
+      name: 'Fri', activities: [
+        { label: 'Workout A/B', cls: 'pill-lift' },
+        { label: 'Zone 2 20min', cls: 'pill-cardio' },
+        { label: 'Sauna', cls: 'pill-sauna' },
+      ]
+    },
+    {
+      name: 'Sat', activities: [
+        { label: 'Zone 2 60min', cls: 'pill-cardio' },
+        { label: 'Sauna', cls: 'pill-sauna' },
+      ]
+    },
+    {
+      name: 'Sun', activities: [
+        { label: 'Rest', cls: 'pill-rest' },
+        { label: 'Sauna opt.', cls: 'pill-sauna' },
+      ]
+    },
+  ];
+
+  const dayColours = ['#1e4d7b','#1a5c35','#1e4d7b','#4338ca','#1e4d7b','#1a5c35','#6b7280'];
+
+  let h = `<div style="margin-bottom:16px;">
+    <h2 style="font-size:15px;font-weight:700;margin-bottom:4px;">Sample Weekly Schedule</h2>
+    <p style="font-size:12px;color:var(--text-muted)">Resistance 3× · Zone 2 ~5× · Sauna 5–7× · Swim 1×. Adjust to suit your week — the dose matters, not the exact day.</p>
+  </div>
+
+  <div class="day-grid">`;
+
+  days.forEach((d, i) => {
+    h += `<div class="day-card">
+      <div class="day-card-hdr" style="background:${dayColours[i]};color:white">${d.name}</div>
+      <div class="day-card-body">
+        ${d.activities.map(a => `<div><span class="day-pill ${a.cls}">${a.label}</span></div>`).join('')}
+      </div>
+    </div>`;
+  });
+
+  h += `</div>
+
+  <div style="background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:8px;padding:10px 14px;font-size:12px;margin-bottom:20px;">
+    <strong>Key sequencing rule:</strong> Weights → Zone 2 cool-down → rest 10 min → Sauna. Never do long Zone 2 before lifting — pre-fatigued legs on an RDL is a back injury waiting to happen.
+  </div>
+
+  <div class="protocol-grid">
+
+    <!-- WARM-UP A -->
+    <div class="proto-card">
+      <div class="proto-card-hdr" style="background:#dbeafe;color:#1e3a8a">🔥 Warm-up — Workout A (8–10 min)</div>
+      <div class="proto-card-body">
+        <div class="proto-step"><div class="proto-step-num">1</div><div><strong>Hip 90/90 rotations</strong> — 10 reps each side. Rotate forward and back through full range. Unlocks hip internal and external rotation for squats and hinges.</div></div>
+        <div class="proto-step"><div class="proto-step-num">2</div><div><strong>Leg swings</strong> — 10 forward + 10 lateral each leg. Hip flexor activation and hamstring prep.</div></div>
+        <div class="proto-step"><div class="proto-step-num">3</div><div><strong>Cat-cow</strong> — 10 slow reps. Thoracic mobility and spinal articulation.</div></div>
+        <div class="proto-step"><div class="proto-step-num">4</div><div><strong>Bodyweight goblet squat × 5</strong> — Pattern rehearsal only. Slow, controlled, full depth.</div></div>
+        <div class="proto-step"><div class="proto-step-num">5</div><div><strong>Band pull-aparts × 15</strong> (or face pulls) — Shoulder health, posterior capsule activation before bench.</div></div>
+        <div class="proto-step"><div class="proto-step-num">6</div><div><strong>Warm-up sets on first exercise</strong> — 1–2 sets at 40–50% of working weight before going to working sets.</div></div>
+      </div>
+    </div>
+
+    <!-- WARM-UP B -->
+    <div class="proto-card">
+      <div class="proto-card-hdr" style="background:#dbeafe;color:#1e3a8a">🔥 Warm-up — Workout B (8–10 min)</div>
+      <div class="proto-card-body">
+        <div class="proto-step"><div class="proto-step-num">1</div><div><strong>Glute bridges × 15</strong> — Activation before the RDL. Squeeze hard at the top each rep.</div></div>
+        <div class="proto-step"><div class="proto-step-num">2</div><div><strong>Band pull-aparts × 15</strong> — Posterior shoulder activation before rowing.</div></div>
+        <div class="proto-step"><div class="proto-step-num">3</div><div><strong>Thoracic rotation drills × 8 each side</strong> — Seated or quadruped. Opens the mid-back for overhead pressing.</div></div>
+        <div class="proto-step"><div class="proto-step-num">4</div><div><strong>Arm circles + cross-body shoulder stretch × 10</strong> — Prep for overhead press and triceps work.</div></div>
+        <div class="proto-step"><div class="proto-step-num">5</div><div><strong>Warm-up sets on first exercise</strong> — 1–2 sets at 40–50% before working sets.</div></div>
+        <div style="margin-top:6px;font-size:11px;color:var(--text-muted)">Note: isometric calf holds (Achilles protocol) are built into both workouts — do them early in the session, not as an afterthought.</div>
+      </div>
+    </div>
+
+    <!-- COOL-DOWN -->
+    <div class="proto-card">
+      <div class="proto-card-hdr" style="background:#dcfce7;color:#14532d">❄️ Cool-down (5–8 min) — post-workout</div>
+      <div class="proto-card-body">
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">Static stretching is appropriate here — tissue is warm, you are going into recovery. Do this before sauna, not instead of it.</p>
+        <div class="proto-step"><div class="proto-step-num">1</div><div><strong>Hip flexor stretch (kneeling lunge)</strong> — 60s each side. Non-negotiable. Desk work and sitting compress these; poor hip flexor mobility loads your lower back under every squat and hinge.</div></div>
+        <div class="proto-step"><div class="proto-step-num">2</div><div><strong>Supine hamstring stretch</strong> — 60s each side. Straight leg, dorsiflexed foot.</div></div>
+        <div class="proto-step"><div class="proto-step-num">3</div><div><strong>Pec/chest stretch in doorframe</strong> — 30s each side. Counteracts bench press and forward posture.</div></div>
+        <div class="proto-step"><div class="proto-step-num">4</div><div><strong>Thoracic extension over foam roller</strong> — 2 min, work mid-back. Directly addresses the postural loading that limits your overhead press and squat mechanics as you age.</div></div>
+        <div class="proto-step"><div class="proto-step-num">5</div><div><strong>5 slow diaphragmatic breaths</strong> — Nasal in 4s, hold 2s, out 6s. Activates parasympathetic and starts recovery shift.</div></div>
+      </div>
+    </div>
+
+    <!-- SAUNA -->
+    <div class="proto-card">
+      <div class="proto-card-hdr" style="background:#fef3c7;color:#78350f">🧖 Sauna Protocol</div>
+      <div class="proto-card-body">
+        <p><strong>Target frequency: 5–7× per week.</strong> The Laukkanen dose-response data is clear — 4–7×/week yields ~40% all-cause and ~50% CVD mortality reduction vs 1×/week. Given your Lp(a) at 0.48 g/L (immutable), this is your primary lever on the cardiovascular risk statins cannot touch.</p>
+        <div class="proto-step"><div class="proto-step-num">1</div><div><strong>Finish lifting → 5 min cool-down stretch</strong></div></div>
+        <div class="proto-step"><div class="proto-step-num">2</div><div><strong>Rest 10 min</strong> before entering — going in heavily flushed adds unnecessary cardiovascular strain.</div></div>
+        <div class="proto-step"><div class="proto-step-num">3</div><div><strong>15–20+ minutes at 80–90°C</strong> (Finnish-style). Duration matters — under 15 min blunts the benefit.</div></div>
+        <div class="proto-step"><div class="proto-step-num">4</div><div><strong>Hydrate:</strong> 500ml before, LMNT + water after. You are sweating out sodium and potassium — replace them.</div></div>
+        <p style="margin-top:6px;">Sessions do not need to be post-workout — standalone sauna days (swim day, rest day) count equally. 1 straight session or 2 rounds with a 5-min cool break between — both count.</p>
+      </div>
+    </div>
+
+    <!-- ZONE 2 -->
+    <div class="proto-card" style="grid-column: span 2;">
+      <div class="proto-card-hdr" style="background:#dcfce7;color:#14532d">🚴 Zone 2 Cardio — 3–4 sessions/week</div>
+      <div class="proto-card-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div>
+            <p><strong>Primary equipment:</strong> Stationary bike or rowing machine. Both are Achilles-neutral. Do not use the treadmill for running until the Achilles is stable and your aerobic base is established.</p>
+            <p><strong>Session structure:</strong> Two types of Zone 2 session each week.</p>
+            <div class="proto-step"><div class="proto-step-num">A</div><div><strong>Post-lift tack-on (20–30 min)</strong> — after Workout A, B, and the third resistance day. Heart rate already elevated; bike or rower at Zone 2 intensity as a cool-down extension. Efficient — no extra gym visit needed.</div></div>
+            <div class="proto-step"><div class="proto-step-num">B</div><div><strong>Standalone session (45–60 min)</strong> — one or two dedicated days. Start at 45 min; extend to 60–75 min as fitness builds over 8–12 weeks.</div></div>
+          </div>
+          <div>
+            <div class="zone2-bar">
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">Your Zone 2 target (Tanaka, age 49)</div>
+              <div class="range">104 – 122 bpm</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Talk test: can hold a sentence, not a monologue. Nasal breathing should be possible throughout.</div>
+            </div>
+            <div class="caution-box" style="margin-top:8px;">
+              <strong>⚠ Achilles:</strong> Treadmill running is off the table until insertional tendinopathy is resolved and aerobic base is built. Bike = zero Achilles load. Rower = isometric load at the catch (therapeutic). Both are safe.
+            </div>
+            <div style="margin-top:10px;font-size:11px;color:var(--text-muted);">
+              <strong>Progress signal to watch:</strong> After 8–12 weeks of consistent Zone 2, your heart rate at the same effort level should drift downward — or your pace/wattage at the same HR should increase. That is your aerobic adaptation showing. Track wattage or pace per session.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>`;
+
+  el.innerHTML = h;
+}
+
+// =====================================================
+// TAB ROUTING
+// =====================================================
+
+let activeTab = 'overview';
+
+function showTab(tab) {
+  activeTab = tab;
+  ['overview','log','history','schedule'].forEach(t => {
+    document.getElementById(`tab-${t}`).style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('nav button').forEach((btn, i) => {
+    btn.classList.toggle('active', ['overview','log','history','schedule'][i] === tab);
+  });
+  renderTab(tab);
+}
+
+function renderTab(tab) {
+  if (tab === 'overview') renderOverview();
+  else if (tab === 'log') { if (!Object.keys(logData).length) initLogData(logWorkout); renderLog(); }
+  else if (tab === 'history') renderHistory();
+  else if (tab === 'schedule') renderSchedule();
+}
+
+function renderAll() {
+  renderHeader();
+  renderStatusBar();
+  renderTab(activeTab);
+}
+
+renderAll();
+</script>
+</body>
+</html>
